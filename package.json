@@ -1,0 +1,44 @@
+{
+  "name": "@bluemarblepayroll/object-system",
+  "version": "1.0.2",
+  "description": "Object and messaged-based broker",
+  "main": "./dist/broker.js",
+  "typings": "./dist/broker.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "engines": {
+    "node": ">=8.11.3"
+  },
+  "contributors": [
+    "Matthew Ruggio <mruggio@bluemarblepayroll.com>"
+  ],
+  "keywords": [
+    "message bus",
+    "object bus",
+    "object factory",
+    "factory",
+    "registry",
+    "messenger"
+  ],
+  "scripts": {
+    "test": "mocha --reporter spec",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bluemarblepayroll/object-system"
+  },
+  "bugs": {
+    "url": "https://github.com/bluemarblepayroll/object-system/issues"
+  },
+  "author": "Blue Marble Payroll, LLC",
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/bluemarble-ondemand/object-system/src/master/",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "typescript": "^2.9.2"
+  }
+}

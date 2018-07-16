@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "module": "commonjs",
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "outDir":"./dist",
+    "sourceMap": true,
+    "rootDir": "./lib"
+  },
+  "include": [
+        "lib/**/*"
+  ],
+}
