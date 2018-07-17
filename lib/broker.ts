@@ -1,12 +1,12 @@
 export namespace Broker {
 
   export interface ReceiveMessageFunc {
-      (args:Record<string, any>):void;
+      (messageId:number, args:Record<string, any>):void;
   }
 
   export interface Object {
     receive?:Record<string, ReceiveMessageFunc>;
-    receiveMessage?(action:string, args:Record<string, any>):void;
+    receiveMessage?(messageId:number, action:string, args:Record<string, any>):void;
   }
 
   export interface Constructor {
@@ -30,7 +30,12 @@ export namespace Broker {
   let queuedMakes:Record<string, Array<QueuedMake>> = {},
       madeObjects:Record<string, Object> = {},
       constructors:Record<string, Constructor> = {},
-      queuedMessages:Record<string, Array<QueuedMessage>> = {};
+      queuedMessages:Record<string, Array<QueuedMessage>> = {},
+      lastMessageId:number = 0;
+
+  function nextMessageId():number {
+    return lastMessageId++;
+  }
 
   function getConstructor(type:string) {
     return constructors[type];
@@ -153,13 +158,13 @@ export namespace Broker {
 
     if (constructedObject.receive && constructedObject.receive[action]) {
       // Use new messaging format
-      constructedObject.receive[action](args);
+      constructedObject.receive[action](nextMessageId(), args);
     } else if (constructedObject.receive && !constructedObject.receive[action]) {
       // Use new messaging format but cant find action function
       throw `Object: ${name} does not respond to: ${action}`;
     } else if (constructedObject.receiveMessage) {
       // Use legacy messaging format
-      constructedObject.receiveMessage(action, args);
+      constructedObject.receiveMessage(nextMessageId(), action, args);
     } else {
       throw `Cannot figure out how to message object: ${name}`;
     }

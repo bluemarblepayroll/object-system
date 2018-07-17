@@ -18,10 +18,10 @@ describe('Broker#message', () => {
       let testComponentConstructor = function(name, config, arg) {
         return {
           receive: {
-            add: (args) => {
+            add: (msgId, args) => {
               valueStick.value += args.value;
             },
-            subtract: (args) => {
+            subtract: (msgId, args) => {
               valueStick.value -= args.value;
             }
           }
@@ -48,10 +48,10 @@ describe('Broker#message', () => {
       let testComponentConstructor = function(name, config, arg) {
         return {
           receive: {
-            add: (args) => {
+            add: (msgId, args) => {
               valueStick.value += args.value;
             },
-            subtract: (args) => {
+            subtract: (msgId, args) => {
               valueStick.value -= args.value;
             }
           }
@@ -79,10 +79,10 @@ describe('Broker#message', () => {
       let testComponentConstructor = function(name, config, arg) {
         return {
           receive: {
-            add: (args) => {
+            add: (msgId, args) => {
               valueStick.value += args.value;
             },
-            subtract: (args) => {
+            subtract: (msgId, args) => {
               valueStick.value -= args.value;
             }
           }
@@ -116,7 +116,7 @@ describe('Broker#message', () => {
 
       let testComponentConstructor = function(name, config, arg) {
         return {
-          receiveMessage: (action, args) => {
+          receiveMessage: (msgId, action, args) => {
             if (action === 'add') {
               valueStick.value += args.value;
             }

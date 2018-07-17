@@ -1,10 +1,10 @@
 export declare namespace Broker {
     interface ReceiveMessageFunc {
-        (args: Record<string, any>): void;
+        (messageId: number, args: Record<string, any>): void;
     }
     interface Object {
         receive?: Record<string, ReceiveMessageFunc>;
-        receiveMessage?(action: string, args: Record<string, any>): void;
+        receiveMessage?(messageId: number, action: string, args: Record<string, any>): void;
     }
     interface Constructor {
         (name: string, config: Record<string, any>, arg: any): Object;

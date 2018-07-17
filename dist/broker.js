@@ -2,7 +2,10 @@
 exports.__esModule = true;
 var Broker;
 (function (Broker) {
-    var queuedMakes = {}, madeObjects = {}, constructors = {}, queuedMessages = {};
+    var queuedMakes = {}, madeObjects = {}, constructors = {}, queuedMessages = {}, lastMessageId = 0;
+    function nextMessageId() {
+        return lastMessageId++;
+    }
     function getConstructor(type) {
         return constructors[type];
     }
@@ -95,13 +98,13 @@ var Broker;
             return;
         }
         if (constructedObject.receive && constructedObject.receive[action]) {
-            constructedObject.receive[action](args);
+            constructedObject.receive[action](nextMessageId(), args);
         }
         else if (constructedObject.receive && !constructedObject.receive[action]) {
             throw "Object: " + name + " does not respond to: " + action;
         }
         else if (constructedObject.receiveMessage) {
-            constructedObject.receiveMessage(action, args);
+            constructedObject.receiveMessage(nextMessageId(), action, args);
         }
         else {
             throw "Cannot figure out how to message object: " + name;
