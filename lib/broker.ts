@@ -27,10 +27,10 @@ export namespace Broker {
     args:Record<string, any>;
   }
 
-  const queuedMakes:Record<string, Array<QueuedMake>> = {},
-        madeObjects:Record<string, Object> = {},
-        constructors:Record<string, Constructor> = {},
-        queuedMessages:Record<string, Array<QueuedMessage>> = {};
+  let queuedMakes:Record<string, Array<QueuedMake>> = {},
+      madeObjects:Record<string, Object> = {},
+      constructors:Record<string, Constructor> = {},
+      queuedMessages:Record<string, Array<QueuedMessage>> = {};
 
   function getConstructor(type:string) {
     return constructors[type];
@@ -61,7 +61,7 @@ export namespace Broker {
       return;
     }
 
-    queuedMakes[type].forEach(x => make(x.type, x.name, x.config, x.arg));
+    queuedMakes[type].forEach(x => { make(x.type, x.name, x.config, x.arg, x.overwrite) });
 
     queuedMakes[type] = [];
   }
@@ -77,6 +77,10 @@ export namespace Broker {
   }
 
   export function register(type:string, constructor:Constructor, overwrite:boolean = false):void {
+    if (!type) {
+      throw 'Type is required.';
+    }
+
     if (constructors[type] && !overwrite) {
       return;
     }
@@ -87,6 +91,14 @@ export namespace Broker {
   }
 
   export function make(type:string, name:string, config:any, arg:any, overwrite:boolean = false):void {
+    if (!type) {
+      throw 'Type is required.';
+    }
+
+    if (!name) {
+      throw 'Name is required.';
+    }
+
     let constructor:Constructor = getConstructor(type);
 
     if (!constructor) {
@@ -105,6 +117,14 @@ export namespace Broker {
   }
 
   export function assign(name:string, obj:Object, overwrite:boolean = false):void {
+    if (!name) {
+      throw 'Name is required.';
+    }
+
+    if (!obj) {
+      throw 'Object is required.';
+    }
+
     if (madeObjects[name] && !overwrite) {
       return;
     }
@@ -115,6 +135,14 @@ export namespace Broker {
   }
 
   export function message(name:string, action:string, args:Record<string, any>):void {
+    if (!name) {
+      throw 'Name is required.';
+    }
+
+    if (!action) {
+      throw 'Action is required.';
+    }
+
     let constructedObject = getObject(name);
 
     if (!constructedObject) {
@@ -128,12 +156,19 @@ export namespace Broker {
       constructedObject.receive[action](args);
     } else if (constructedObject.receive && !constructedObject.receive[action]) {
       // Use new messaging format but cant find action function
-      throw `Object: ${name} doest not respond to: ${action}`;
+      throw `Object: ${name} does not respond to: ${action}`;
     } else if (constructedObject.receiveMessage) {
       // Use legacy messaging format
       constructedObject.receiveMessage(action, args);
     } else {
       throw `Cannot figure out how to message object: ${name}`;
     }
+  }
+
+  export function reset():void {
+    queuedMakes = {};
+    madeObjects = {};
+    constructors = {};
+    queuedMessages = {};
   }
 }

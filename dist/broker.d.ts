@@ -13,4 +13,5 @@ export declare namespace Broker {
     function make(type: string, name: string, config: any, arg: any, overwrite?: boolean): void;
     function assign(name: string, obj: Object, overwrite?: boolean): void;
     function message(name: string, action: string, args: Record<string, any>): void;
+    function reset(): void;
 }

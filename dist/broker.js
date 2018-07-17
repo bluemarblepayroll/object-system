@@ -25,7 +25,7 @@ var Broker;
         if (!queuedMakes[type]) {
             return;
         }
-        queuedMakes[type].forEach(function (x) { return make(x.type, x.name, x.config, x.arg); });
+        queuedMakes[type].forEach(function (x) { make(x.type, x.name, x.config, x.arg, x.overwrite); });
         queuedMakes[type] = [];
     }
     function drainMessages(name) {
@@ -37,6 +37,9 @@ var Broker;
     }
     function register(type, constructor, overwrite) {
         if (overwrite === void 0) { overwrite = false; }
+        if (!type) {
+            throw 'Type is required.';
+        }
         if (constructors[type] && !overwrite) {
             return;
         }
@@ -46,6 +49,12 @@ var Broker;
     Broker.register = register;
     function make(type, name, config, arg, overwrite) {
         if (overwrite === void 0) { overwrite = false; }
+        if (!type) {
+            throw 'Type is required.';
+        }
+        if (!name) {
+            throw 'Name is required.';
+        }
         var constructor = getConstructor(type);
         if (!constructor) {
             queueMakeCall({ type: type, name: name, config: config, arg: arg, overwrite: overwrite });
@@ -60,6 +69,12 @@ var Broker;
     Broker.make = make;
     function assign(name, obj, overwrite) {
         if (overwrite === void 0) { overwrite = false; }
+        if (!name) {
+            throw 'Name is required.';
+        }
+        if (!obj) {
+            throw 'Object is required.';
+        }
         if (madeObjects[name] && !overwrite) {
             return;
         }
@@ -68,6 +83,12 @@ var Broker;
     }
     Broker.assign = assign;
     function message(name, action, args) {
+        if (!name) {
+            throw 'Name is required.';
+        }
+        if (!action) {
+            throw 'Action is required.';
+        }
         var constructedObject = getObject(name);
         if (!constructedObject) {
             queueMessage({ name: name, action: action, args: args });
@@ -77,7 +98,7 @@ var Broker;
             constructedObject.receive[action](args);
         }
         else if (constructedObject.receive && !constructedObject.receive[action]) {
-            throw "Object: " + name + " doest not respond to: " + action;
+            throw "Object: " + name + " does not respond to: " + action;
         }
         else if (constructedObject.receiveMessage) {
             constructedObject.receiveMessage(action, args);
@@ -87,5 +108,12 @@ var Broker;
         }
     }
     Broker.message = message;
+    function reset() {
+        queuedMakes = {};
+        madeObjects = {};
+        constructors = {};
+        queuedMessages = {};
+    }
+    Broker.reset = reset;
 })(Broker = exports.Broker || (exports.Broker = {}));
 //# sourceMappingURL=broker.js.map
