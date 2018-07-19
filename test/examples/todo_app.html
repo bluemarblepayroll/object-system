@@ -1,0 +1,128 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.2/immutable.js"></script>
+
+<script type="text/javascript">
+  let exports = {};
+</script>
+
+<script src="../../dist/broker.js"></script>
+
+<p>
+  This example was tested to work in Google Chrome Version 67.0.3396.99 (Official Build) (64-bit).
+  It is not meant to be production-grade, it is just meant to be an all-in-one-file example.
+</p>
+
+<div id="TodoList1"></div>
+<div id="TodoForm1"></div>
+
+<script type="text/babel">
+
+  class TodoForm extends React.Component {
+
+    static defaultProps = {
+      formName: ''
+  	};
+
+    render() {
+      return(
+        <div>
+          <input ref="notes" />
+          <button onClick={this.addItem.bind(this)}>Add</button>
+        </div>
+      );
+    }
+
+    clearField() {
+      this.refs.notes.value = '';
+    }
+
+    addItem() {
+      Broker.message(this.props.formName, 'add', { notes: this.refs.notes.value });
+      this.clearField();
+    }
+  }
+
+  class TodoList extends React.Component {
+
+    static defaultProps = {
+      items: [],
+      title: 'Todo'
+  	};
+
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        items: Immutable.fromJS(props.items),
+        title: props.title
+      };
+
+      this.receive = {
+        add: (msgId, args) => {
+          let newNote = Immutable.fromJS({
+            notes: args.notes
+          });
+
+          this.setState({
+            items: this.state.items.push(newNote)
+          });
+        }
+      }
+    }
+
+    render() {
+      return(
+        <div>
+          <h2>{this.state.title}</h2>
+          <table>
+            <tbody>
+              {this.renderRows()}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    renderRows() {
+      return this.state.items.map( (item, index) =>
+        <tr key={index}>
+          <td>{item.get('notes')}</td>
+          <td><button onClick={this.deleteItem.bind(this, index)}>Delete</button></td>
+        </tr>
+      );
+    }
+
+    deleteItem(index) {
+      console.log(`[TodoList] Deleting item at index: ${index}`);
+
+      this.setState({
+        items: this.state.items.delete(index)
+      });
+    }
+  }
+
+  function reactConstructor(reactClass) {
+    return (name, opts, domElement) => ReactDOM.render(React.createElement(reactClass, opts), domElement);
+  }
+
+  Broker.register('TodoList', reactConstructor(TodoList));
+  Broker.register('TodoForm', reactConstructor(TodoForm));
+
+  let listOptions = {
+    title: 'Things I Need To Get Done',
+    items: [
+      { notes: 'Example 1' },
+      { notes: 'Example 2' }
+    ]
+  };
+
+  let formOptions = {
+    formName: 'TodoList1'
+  };
+
+  Broker.make('TodoList', 'TodoList1', listOptions, document.getElementById('TodoList1'));
+  Broker.make('TodoForm', 'TodoForm1', formOptions, document.getElementById('TodoForm1'));
+
+</script>
