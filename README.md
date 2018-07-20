@@ -114,6 +114,24 @@ class TodoList extends React.Component {
 
 The component above knows how to render the HTML of the list itself.  In order for items to be added, it will listen, or "receive" messages as implemented in the constructor.  The key here is all instance of the object needs is to respond to 'receive' and implement whatever actions as keys ('add' in our example.)
 
+You can also choose to implement a method called receiveMessage(msgId, action, args), instead of having the object contain a property called 'receive.'  In this case, the method could look like this:
+
+````
+receiveMessage(msgId, action, args) {
+  if (action === 'add') {  
+    let newNote = Immutable.fromJS({
+      notes: args.notes
+    });
+
+    this.setState({
+      items: this.state.items.push(newNote)
+    });
+  } else {
+    throw `Cant handle action: ${action}`;
+  }
+}
+````
+
 Complimenting this list component would be a basic form component:
 
 ````
