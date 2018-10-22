@@ -18,7 +18,7 @@ Using this library we could accomplish this by:
 Then, we can make calls like this:
 
 ````
-Broker.message('SomeComponentName', 'someAction', { something: true, somethingElse: 0 });
+message('SomeComponentName', 'someAction', { something: true, somethingElse: 0 });
 ````
 
 In non-single page web applications, the client-side life-cycle begins over and over again and usually does not handle as much global/application-level state as a single page application would.  Therefore, our front-end object/global state manager can be simplified.  In this scenario, this library may be all you need because it allows you to:
@@ -135,6 +135,8 @@ receiveMessage(msgId, action, args) {
 Complimenting this list component would be a basic form component:
 
 ````
+import { message } from '@bluemarblepayroll/object-system';
+
 class TodoForm extends React.Component {
 
   static defaultProps = {
@@ -155,7 +157,7 @@ class TodoForm extends React.Component {
   }
 
   addItem() {
-    Broker.message(this.props.formName, 'add', { notes: this.refs.notes.value });
+    message(this.props.formName, 'add', { notes: this.refs.notes.value });
     this.clearField();
   }
 }
@@ -173,12 +175,14 @@ Tying this together would be the HTML:
 And the JavaScript that registers the React components and calls to make them:
 
 ````
+import { make, register } from '@bluemarblepayroll/object-system';
+
 function reactConstructor(reactClass) {
   return (name, opts, domElement) => ReactDOM.render(React.createElement(reactClass, opts), domElement);
 }
 
-Broker.register('TodoList', reactConstructor(TodoList));
-Broker.register('TodoForm', reactConstructor(TodoForm));
+register('TodoList', reactConstructor(TodoList));
+register('TodoForm', reactConstructor(TodoForm));
 
 let listOptions = {
   title: 'Things I Need To Get Done',
@@ -192,8 +196,8 @@ let formOptions = {
   formName: 'TodoList1'
 };
 
-Broker.make('TodoList', 'TodoList1', listOptions, document.getElementById('TodoList1'));
-Broker.make('TodoForm', 'TodoForm1', formOptions, document.getElementById('TodoForm1'));
+make('TodoList', 'TodoList1', listOptions, document.getElementById('TodoList1'));
+make('TodoForm', 'TodoForm1', formOptions, document.getElementById('TodoForm1'));
 ````
 
 Voilà!  You have installed a basic component manager on top of a basic component architecture!
@@ -215,7 +219,7 @@ Basic steps to take to get this repository compiling:
 To compile the TypeScript source down to native JavaScript, run:
 
 ````
-npm run build
+yarn run build
 ````
 
 ### Running Tests
@@ -223,7 +227,13 @@ npm run build
 To execute the test suite first compile the solution then run:
 
 ````
-npm run test
+yarn run test
+````
+
+### Linting
+
+````
+yarn run lint
 ````
 
 ## License

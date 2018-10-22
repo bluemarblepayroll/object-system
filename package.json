@@ -1,6 +1,6 @@
 {
   "name": "@bluemarblepayroll/object-system",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Object and messaged-based broker",
   "main": "./dist/broker.js",
   "typings": "./dist/broker.d.ts",
@@ -24,7 +24,9 @@
   ],
   "scripts": {
     "test": "mocha --reporter spec",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "tsc -w",
+    "lint": "tslint -c tslint.json 'lib/**/*.ts'"
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
+    "tslint": "^5.11.0",
     "typescript": "^2.9.2"
   }
 }

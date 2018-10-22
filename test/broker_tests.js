@@ -1,7 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var Broker = require('../dist/broker.js').Broker;
+var Broker = require('../dist/broker.js');
 
 describe('Broker#message', () => {
 
