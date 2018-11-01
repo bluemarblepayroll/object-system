@@ -240,7 +240,7 @@ yarn run lint
 
 Note: ensure you have proper authorization before trying to publish new versions.
 
-After code changes have successfully went through the Pull Request review process then the following steps should be followed for publishing new versions:
+After code changes have successfully gone through the Pull Request review process then the following steps should be followed for publishing new versions:
 
 1. Merge Pull Request into master
 2. Update package.json [version number](https://semver.org/)
