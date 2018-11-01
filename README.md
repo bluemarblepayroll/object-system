@@ -247,9 +247,10 @@ After code changes have successfully went through the Pull Request review proces
 3. Update CHANGELOG.md
 4. Push master to remote and ensure CI builds master successfully
 5. Build the project locally: `yarn run build`
-6. Publish package to NPM: `npm publish`
-7. Tag master with new version: `git tag <version>`
-8. Push tags remotely: `git push origin --tags`
+6. Perform a dry run: `npm publish --access public --dry-run`.  Inspect packaging, ensure all files (including dist) are included.
+7. Publish package to NPM: `npm publish --access public`
+8. Tag master with new version: `git tag <version>`
+9. Push tags remotely: `git push origin --tags`
 
 ## License
 
