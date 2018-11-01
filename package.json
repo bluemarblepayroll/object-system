@@ -26,7 +26,7 @@
     "test": "mocha -r ts-node/register --reporter spec test/**/*.spec.ts",
     "build": "tsc",
     "start": "tsc -w",
-    "lint": "tslint -c tslint.json -p ./"
+    "lint": "tslint -c tslint.json '{lib,test}/**/*.ts'"
   },
   "repository": {
     "type": "git",
