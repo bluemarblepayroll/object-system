@@ -216,7 +216,7 @@ Basic steps to take to get this repository compiling:
 
 ### Compiling
 
-To compile the TypeScript source down to native JavaScript, run:
+To compile the TypeScript source down to JavaScript, run:
 
 ````
 yarn run build
@@ -224,7 +224,7 @@ yarn run build
 
 ### Running Tests
 
-To execute the test suite first compile the solution then run:
+To execute the test suite run:
 
 ````
 yarn run test
@@ -235,6 +235,21 @@ yarn run test
 ````
 yarn run lint
 ````
+
+### Publishing
+
+Note: ensure you have proper authorization before trying to publish new versions.
+
+After code changes have successfully went through the Pull Request review process then the following steps should be followed for publishing new versions:
+
+1. Merge Pull Request into master
+2. Update package.json [version number](https://semver.org/)
+3. Update CHANGELOG.md
+4. Push master to remote and ensure CI builds master successfully
+5. Build the project locally: `yarn run build`
+6. Publish package to NPM: `npm publish`
+7. Tag master with new version: `git tag <version>`
+8. Push tags remotely: `git push origin --tags`
 
 ## License
 

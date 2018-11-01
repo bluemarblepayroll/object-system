@@ -9,6 +9,7 @@
     "rootDir": "./lib"
   },
   "include": [
-        "lib/**/*"
+        "lib/**/*",
+        "spec/**/*"
   ],
 }
