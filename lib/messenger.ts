@@ -13,7 +13,7 @@
    return lastMessageId++;
  }
 
- function hasReceiveMap(constructedObject: IBrokerObject, action:string) {
+ function hasReceiveMap(constructedObject: IBrokerObject, action: string) {
    return constructedObject.receive && constructedObject.receive[action];
  }
 
