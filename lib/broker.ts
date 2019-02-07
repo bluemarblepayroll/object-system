@@ -31,20 +31,20 @@ function getObject(name: string): IBrokerObject {
   return madeObjects[name];
 }
 
-function queueMakeCall(makeCall: IQueuedMake): void {
-  if (!queuedMakes[makeCall.type]) {
-    queuedMakes[makeCall.type] = [];
+function queue<T>(queueToUse: Record<string, T[]>, key: string, record: T) {
+  if (!queueToUse[key]) {
+    queueToUse[key] = [];
   }
 
-  queuedMakes[makeCall.type].push(makeCall);
+  queueToUse[key].push(record);
+}
+
+function queueMakeCall(makeCall: IQueuedMake): void {
+  queue<IQueuedMake>(queuedMakes, makeCall.type, makeCall);
 }
 
 function queueMessage(queuedMessage: IMessage): void {
-  if (!queuedMessages[queuedMessage.name]) {
-    queuedMessages[queuedMessage.name] = [];
-  }
-
-  queuedMessages[queuedMessage.name].push(queuedMessage);
+  queue<IMessage>(queuedMessages, queuedMessage.name, queuedMessage);
 }
 
 function drainMakes(type: string): void {
