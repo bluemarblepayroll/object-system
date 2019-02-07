@@ -5,12 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export type ReceiveMessageFunc = (messageId: number, args: Record<string, any>) => void;
-
-export interface IBrokerObject {
-  receive?: Record<string, ReceiveMessageFunc>;
-  receiveMessage?(messageId: number, action: string, args: Record<string, any>): void;
-}
+import { IBrokerObject } from "./broker_object";
+import { emit, IMessage } from "./messenger";
 
 export type Constructor = (name: string, config: Record<string, any>, arg: any) => IBrokerObject;
 
@@ -22,21 +18,10 @@ interface IQueuedMake {
   overwrite: boolean;
 }
 
-interface IQueuedMessage {
-  name: string;
-  action: string;
-  args: Record<string, any>;
-}
-
 let queuedMakes: Record<string, IQueuedMake[]> = {};
 let madeObjects: Record<string, IBrokerObject> = {};
 let constructors: Record<string, Constructor> = {};
-let queuedMessages: Record<string, IQueuedMessage[]> = {};
-let lastMessageId: number = 0;
-
-function nextMessageId(): number {
-  return lastMessageId++;
-}
+let queuedMessages: Record<string, IMessage[]> = {};
 
 function getConstructor(type: string) {
   return constructors[type];
@@ -54,7 +39,7 @@ function queueMakeCall(makeCall: IQueuedMake): void {
   queuedMakes[makeCall.type].push(makeCall);
 }
 
-function queueMessage(queuedMessage: IQueuedMessage): void {
+function queueMessage(queuedMessage: IMessage): void {
   if (!queuedMessages[queuedMessage.name]) {
     queuedMessages[queuedMessage.name] = [];
   }
@@ -86,7 +71,6 @@ export function register(type: string, constructor: Constructor, overwrite: bool
   if (!type) {
     throw new Error("Type is required.");
   }
-
   if (constructors[type] && !overwrite) {
     return;
   }
@@ -100,7 +84,6 @@ export function make(type: string, name: string, config: any, arg: any, overwrit
   if (!type) {
     throw new Error("Type is required.");
   }
-
   if (!name) {
     throw new Error("Name is required.");
   }
@@ -109,10 +92,8 @@ export function make(type: string, name: string, config: any, arg: any, overwrit
 
   if (!constructor) {
     queueMakeCall({ type, name, config, arg, overwrite });
-
     return;
   }
-
   if (madeObjects[name] && !overwrite) {
     return;
   }
@@ -126,11 +107,9 @@ export function assign(name: string, obj: IBrokerObject, overwrite: boolean = fa
   if (!name) {
     throw new Error("Name is required.");
   }
-
   if (!obj) {
     throw new Error("Object is required.");
   }
-
   if (madeObjects[name] && !overwrite) {
     return;
   }
@@ -144,7 +123,6 @@ export function message(name: string, action: string, args: Record<string, any>)
   if (!name) {
     throw new Error("Name is required.");
   }
-
   if (!action) {
     throw new Error("Action is required.");
   }
@@ -153,22 +131,10 @@ export function message(name: string, action: string, args: Record<string, any>)
 
   if (!constructedObject) {
     queueMessage({ name, action, args });
-
     return;
   }
 
-  if (constructedObject.receive && constructedObject.receive[action]) {
-    // Use new messaging format
-    constructedObject.receive[action](nextMessageId(), args);
-  } else if (constructedObject.receive && !constructedObject.receive[action]) {
-    // Use new messaging format but cant find action function
-    throw new Error(`Object: ${name} does not respond to: ${action}`);
-  } else if (constructedObject.receiveMessage) {
-    // Use legacy messaging format
-    constructedObject.receiveMessage(nextMessageId(), action, args);
-  } else {
-    throw new Error(`Cannot figure out how to message object: ${name}`);
-  }
+  emit(constructedObject, { name, action, args });
 }
 
 export function reset(): void {

@@ -1,6 +1,6 @@
 # Object System
 
-[![Build Status](https://travis-ci.org/bluemarblepayroll/object-system.svg?branch=master)](https://travis-ci.org/bluemarblepayroll/object-system)
+[![npm version](https://badge.fury.io/js/%40bluemarblepayroll%2Fobject-system.svg)](https://badge.fury.io/js/%40bluemarblepayroll%2Fobject-system) [![Build Status](https://travis-ci.org/bluemarblepayroll/object-system.svg?branch=master)](https://travis-ci.org/bluemarblepayroll/object-system) [![Maintainability](https://api.codeclimate.com/v1/badges/1c31fac2328935152dd1/maintainability)](https://codeclimate.com/github/bluemarblepayroll/object-system/maintainability) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This library provides a way for you to organize and standardize individual components.  It can serve as the 'glue' or 'broker' between a bunch of disparate objects within a system.  This library was extracted from the following use case:
 
@@ -118,7 +118,7 @@ You can also choose to implement a method called receiveMessage(msgId, action, a
 
 ````
 receiveMessage(msgId, action, args) {
-  if (action === 'add') {  
+  if (action === 'add') {
     let newNote = Immutable.fromJS({
       notes: args.notes
     });
