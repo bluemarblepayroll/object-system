@@ -70,7 +70,7 @@ describe("Broker#message", () => {
 
       expect(() => {
         Broker.message(name, action, { value: 1 });
-      }).to.throw(`Object: ${name} does not respond to: ${action}`);
+      }).to.throw(`Cant message object: ${name} with action: ${action}`);
     });
 
     it("should properly queue makes and messages.", () => {

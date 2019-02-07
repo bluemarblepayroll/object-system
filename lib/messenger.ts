@@ -13,6 +13,14 @@
    return lastMessageId++;
  }
 
+ function hasReceiveMap(constructedObject: IBrokerObject, action:string) {
+   return constructedObject.receive && constructedObject.receive[action];
+ }
+
+ function hasReceiveMessageFunction(constructedObject: IBrokerObject) {
+   return !!constructedObject.receiveMessage;
+ }
+
  export interface IMessage {
    name: string;
    action: string;
@@ -20,16 +28,13 @@
  }
 
  export function emit(constructedObject: IBrokerObject, message: IMessage): void {
-  if (constructedObject.receive && constructedObject.receive[message.action]) {
+  if (hasReceiveMap(constructedObject, message.action)) {
     // Use new messaging format
     constructedObject.receive[message.action](nextMessageId(), message.args);
-  } else if (constructedObject.receive && !constructedObject.receive[message.action]) {
-    // Use new messaging format but cant find action function
-    throw new Error(`Object: ${message.name} does not respond to: ${message.action}`);
-  } else if (constructedObject.receiveMessage) {
+  } else if (hasReceiveMessageFunction(constructedObject)) {
     // Use legacy messaging format
     constructedObject.receiveMessage(nextMessageId(), message.action, message.args);
   } else {
-    throw new Error(`Cannot figure out how to message object: ${message.name}`);
+    throw new Error(`Cant message object: ${message.name} with action: ${message.action}`);
   }
 }
