@@ -17,7 +17,6 @@ interface IMake {
   name: string;
   config: Record<string, any>;
   arg: any;
-  overwrite: boolean;
 }
 
 const components: Registry<IComponent> = new Registry<IComponent>();
@@ -27,7 +26,7 @@ const queuedMakes: Queue<IMake> = new Queue<IMake>();
 const queuedMessages: Queue<IMessage> = new Queue<IMessage>();
 
 function drainMakes(type: string): void {
-  queuedMakes.popAll(type).forEach((x) => { make(x.type, x.name, x.config, x.arg, x.overwrite); });
+  queuedMakes.popAll(type).forEach((x) => { make(x.type, x.name, x.config, x.arg); });
 }
 
 function drainMessages(name: string): void {
@@ -47,7 +46,7 @@ export function register(type: string, constructor: Constructor, overwrite: bool
   drainMakes(type);
 }
 
-export function make(type: string, name: string, config: any, arg: any, overwrite: boolean = false): void {
+export function make(type: string, name: string, config: any, arg: any): void {
   if (!type) {
     throw new Error("Type is required.");
   }
@@ -58,31 +57,23 @@ export function make(type: string, name: string, config: any, arg: any, overwrit
   const constructor: Constructor = constructors.find(type);
 
   if (!constructor) {
-    queuedMakes.push(type, { type, name, config, arg, overwrite });
-    return;
-  }
-  if (components.find(name) && !overwrite) {
+    queuedMakes.push(type, { type, name, config, arg });
     return;
   }
 
   components.add(name, constructor(name, config, arg));
-
   drainMessages(name);
 }
 
-export function assign(name: string, component: IComponent, overwrite: boolean = false): void {
+export function assign(name: string, component: IComponent): void {
   if (!name) {
     throw new Error("Name is required.");
   }
   if (!component) {
     throw new Error("Object is required.");
   }
-  if (components.find(name) && !overwrite) {
-    return;
-  }
 
   components.add(name, component);
-
   drainMessages(name);
 }
 

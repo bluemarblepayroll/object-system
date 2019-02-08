@@ -1,8 +1,9 @@
-## 2.0.1 (February 7th, 2019)
+## 3.0.0 (February 7th, 2019)
 
-Maintenance Update:
+Maintenance Update + 1 Breaking Change:
 
-* Addressed complexity issues
+* Breaking Change: Removed override option (will now default to override = true for all cases)
+* Addressed complexity issues (broke out registry/queue components)
 * Added Badging
 
 ## 2.0.0 (November 1, 2018)

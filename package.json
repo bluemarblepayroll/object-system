@@ -1,6 +1,6 @@
 {
   "name": "@bluemarblepayroll/object-system",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Object and messaged-based broker",
   "main": "./dist/broker.js",
   "typings": "./dist/broker.d.ts",
