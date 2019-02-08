@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { IBrokerObject } from "./broker_object";
+import { IComponent } from "./component";
 import { emit, IMessage } from "./messenger";
+import { Queue } from "./queue";
+import { Registry } from "./registry";
 
-export type Constructor = (name: string, config: Record<string, any>, arg: any) => IBrokerObject;
+export type Constructor = (name: string, config: Record<string, any>, arg: any) => IComponent;
 
-interface IQueuedMake {
+interface IMake {
   type: string;
   name: string;
   config: Record<string, any>;
@@ -18,53 +20,18 @@ interface IQueuedMake {
   overwrite: boolean;
 }
 
-let queuedMakes: Record<string, IQueuedMake[]> = {};
-let madeObjects: Record<string, IBrokerObject> = {};
-let constructors: Record<string, Constructor> = {};
-let queuedMessages: Record<string, IMessage[]> = {};
+const components: Registry<IComponent> = new Registry<IComponent>();
+const constructors: Registry<Constructor> = new Registry<Constructor>();
 
-function getConstructor(type: string) {
-  return constructors[type];
-}
-
-function getObject(name: string): IBrokerObject {
-  return madeObjects[name];
-}
-
-function queue<T>(queueToUse: Record<string, T[]>, key: string, record: T) {
-  if (!queueToUse[key]) {
-    queueToUse[key] = [];
-  }
-
-  queueToUse[key].push(record);
-}
-
-function queueMakeCall(makeCall: IQueuedMake): void {
-  queue<IQueuedMake>(queuedMakes, makeCall.type, makeCall);
-}
-
-function queueMessage(queuedMessage: IMessage): void {
-  queue<IMessage>(queuedMessages, queuedMessage.name, queuedMessage);
-}
+const queuedMakes: Queue<IMake> = new Queue<IMake>();
+const queuedMessages: Queue<IMessage> = new Queue<IMessage>();
 
 function drainMakes(type: string): void {
-  if (!queuedMakes[type]) {
-    return;
-  }
-
-  queuedMakes[type].forEach((x) => { make(x.type, x.name, x.config, x.arg, x.overwrite); });
-
-  queuedMakes[type] = [];
+  queuedMakes.popAll(type).forEach((x) => { make(x.type, x.name, x.config, x.arg, x.overwrite); });
 }
 
 function drainMessages(name: string): void {
-  if (!queuedMessages[name]) {
-    return;
-  }
-
-  queuedMessages[name].forEach((x) => message(x.name, x.action, x.args || {}));
-
-  queuedMessages[name] = [];
+  queuedMessages.popAll(name).forEach((x) => message(x.name, x.action, x.args || {}));
 }
 
 export function register(type: string, constructor: Constructor, overwrite: boolean = false): void {
@@ -75,7 +42,7 @@ export function register(type: string, constructor: Constructor, overwrite: bool
     return;
   }
 
-  constructors[type] = constructor;
+  constructors.add(type, constructor);
 
   drainMakes(type);
 }
@@ -88,33 +55,33 @@ export function make(type: string, name: string, config: any, arg: any, overwrit
     throw new Error("Name is required.");
   }
 
-  const constructor: Constructor = getConstructor(type);
+  const constructor: Constructor = constructors.find(type);
 
   if (!constructor) {
-    queueMakeCall({ type, name, config, arg, overwrite });
+    queuedMakes.push(type, { type, name, config, arg, overwrite });
     return;
   }
-  if (madeObjects[name] && !overwrite) {
+  if (components.find(name) && !overwrite) {
     return;
   }
 
-  madeObjects[name] = constructor(name, config, arg);
+  components.add(name, constructor(name, config, arg));
 
   drainMessages(name);
 }
 
-export function assign(name: string, obj: IBrokerObject, overwrite: boolean = false): void {
+export function assign(name: string, component: IComponent, overwrite: boolean = false): void {
   if (!name) {
     throw new Error("Name is required.");
   }
-  if (!obj) {
+  if (!component) {
     throw new Error("Object is required.");
   }
-  if (madeObjects[name] && !overwrite) {
+  if (components.find(name) && !overwrite) {
     return;
   }
 
-  madeObjects[name] = obj;
+  components.add(name, component);
 
   drainMessages(name);
 }
@@ -127,19 +94,19 @@ export function message(name: string, action: string, args: Record<string, any>)
     throw new Error("Action is required.");
   }
 
-  const constructedObject: IBrokerObject = getObject(name);
+  const component: IComponent = components.find(name);
 
-  if (!constructedObject) {
-    queueMessage({ name, action, args });
+  if (!component) {
+    queuedMessages.push(name, { name, action, args });
     return;
   }
 
-  emit(constructedObject, { name, action, args });
+  emit(component, { name, action, args });
 }
 
 export function reset(): void {
-  queuedMakes = {};
-  madeObjects = {};
-  constructors = {};
-  queuedMessages = {};
+  components.clear();
+  constructors.clear();
+  queuedMakes.clearAll();
+  queuedMessages.clearAll();
 }

@@ -7,7 +7,7 @@
 
 export type ReceiveMessageFunc = (messageId: number, args: Record<string, any>) => void;
 
-export interface IBrokerObject {
+export interface IComponent {
   receive?: Record<string, ReceiveMessageFunc>;
   receiveMessage?(messageId: number, action: string, args: Record<string, any>): void;
 }
